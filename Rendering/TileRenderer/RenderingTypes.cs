@@ -10,14 +10,14 @@ public struct GeoFeature : BaseShape
 {
     public enum GeoFeatureType
     {
-        Plain,
-        Hills,
-        Mountains,
-        Forest,
-        Desert,
-        Unknown,
-        Water,
-        Residential
+        Plain = 0b_0000_0000,
+        Hills = 0b_0000_0001,
+        Mountains = 0b_0000_0010,
+        Forest = 0b_0000_0011,
+        Desert = 0b_0000_0100,
+        Unknown = 0b_0000_0101,
+        Water = 0b_0000_0110,
+        Residential=0b_0000_0111
     }
 
     public int ZIndex
@@ -55,7 +55,7 @@ public struct GeoFeature : BaseShape
 
     public void Render(IImageProcessingContext context)
     {
-        var color = Color.Magenta;
+        Color color = Color.Magenta;
         switch (Type)
         {
             case GeoFeatureType.Plain:
@@ -100,7 +100,7 @@ public struct GeoFeature : BaseShape
         IsPolygon = true;
         Type = type;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -112,7 +112,27 @@ public struct GeoFeature : BaseShape
         Type = GeoFeatureType.Unknown;
         if (naturalKey != null)
         {
-            if (naturalKey == "fell" ||
+            if (naturalKey == "water")
+            {
+                Type = GeoFeatureType.Water;
+            }
+            else if (naturalKey == "wood" ||
+                     naturalKey == "tree_row")
+            {
+                Type = GeoFeatureType.Forest;
+            }
+            else if (naturalKey == "beach" ||
+                    naturalKey == "sand")
+            {
+                Type = GeoFeatureType.Desert;
+            }
+            else if (naturalKey == "bare_rock" ||
+                     naturalKey == "rock" ||
+                     naturalKey == "scree")
+            {
+                Type = GeoFeatureType.Mountains;
+            }
+            else if (naturalKey == "fell" ||
                 naturalKey == "grassland" ||
                 naturalKey == "heath" ||
                 naturalKey == "moor" ||
@@ -121,30 +141,10 @@ public struct GeoFeature : BaseShape
             {
                 Type = GeoFeatureType.Plain;
             }
-            else if (naturalKey == "wood" ||
-                     naturalKey == "tree_row")
-            {
-                Type = GeoFeatureType.Forest;
-            }
-            else if (naturalKey == "bare_rock" ||
-                     naturalKey == "rock" ||
-                     naturalKey == "scree")
-            {
-                Type = GeoFeatureType.Mountains;
-            }
-            else if (naturalKey == "beach" ||
-                     naturalKey == "sand")
-            {
-                Type = GeoFeatureType.Desert;
-            }
-            else if (naturalKey == "water")
-            {
-                Type = GeoFeatureType.Water;
-            }
         }
 
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -171,7 +171,7 @@ public struct Railway : BaseShape
     {
         IsPolygon = false;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -199,7 +199,7 @@ public struct PopulatedPlace : BaseShape
     {
         IsPolygon = false;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
         var name = feature.Properties.FirstOrDefault(x => x.Key == "name").Value;
@@ -252,7 +252,7 @@ public struct Border : BaseShape
     {
         IsPolygon = false;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -305,7 +305,7 @@ public struct Waterway : BaseShape
     {
         IsPolygon = isPolygon;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -332,7 +332,7 @@ public struct Road : BaseShape
     {
         IsPolygon = isPolygon;
         ScreenCoordinates = new PointF[c.Length];
-        for (var i = 0; i < c.Length; i++)
+        for (int i = 0; i < c.Length; i++)
             ScreenCoordinates[i] = new PointF((float)MercatorProjection.lonToX(c[i].Longitude),
                 (float)MercatorProjection.latToY(c[i].Latitude));
     }
@@ -348,7 +348,7 @@ public interface BaseShape
 
     public void TranslateAndScale(float minX, float minY, float scale, float height)
     {
-        for (var i = 0; i < ScreenCoordinates.Length; i++)
+        for (int i = 0; i < ScreenCoordinates.Length; i++)
         {
             var coord = ScreenCoordinates[i];
             var newCoord = new PointF((coord.X + minX * -1) * scale, height - (coord.Y + minY * -1) * scale);
